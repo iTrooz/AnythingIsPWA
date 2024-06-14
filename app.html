@@ -10,6 +10,27 @@
     <p>Name: {{.Name}}</p>
     <p>Short name: {{.ShortName}}</p>
     <p>Start URL: {{.StartURL}}</p>
+
+    <button onclick="install()">Install</button>
     
+    <script>
+        let installPrompt = null;
+
+        // is called once at page startup, and then every time the user cancels app installation
+        window.addEventListener("beforeinstallprompt", (event) => {
+            event.preventDefault();
+            installPrompt = event;
+        });
+
+        async function install() {
+            if (!installPrompt) return;
+            installPrompt.prompt();
+            const { outcome } = await installPrompt.userChoice;
+            if (outcome == "dismissed") {
+                alert("You dismissed the app installation popup. The app was not installed.")
+            }
+            installPrompt = null;
+        }
+    </script>
 </body>
 </html>
