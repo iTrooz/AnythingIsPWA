@@ -2,6 +2,7 @@ package intmain
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 )
@@ -77,10 +78,11 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func appHandler(w http.ResponseWriter, r *http.Request) {
-	name := r.URL.Query().Get("name")
-	if name == "" {
-		http.Error(w, "name parameter is required", http.StatusBadRequest)
-		return
+	for _, key := range []string{"name", "start_url"} {
+		if !r.URL.Query().Has(key) {
+			http.Error(w, fmt.Sprintf("Required parameter %v is missing", key), http.StatusBadRequest)
+			return
+		}
 	}
 
 	tmpl, err := template.ParseFiles("app.html")
