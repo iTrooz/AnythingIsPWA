@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 )
@@ -24,9 +25,11 @@ type Icon struct {
 }
 
 func main() {
-	http.HandleFunc("/manifest.json", manifestHandler)
-	http.HandleFunc("/icon.png", iconHandler)
 	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/app", appHandler)
+	http.HandleFunc("/app/manifest.json", manifestHandler)
+	http.HandleFunc("/app/icon.png", iconHandler)
+
 	http.HandleFunc("/redirect", redirectHandler)
 
 	port := os.Getenv("PORT")
@@ -37,11 +40,24 @@ func main() {
 	http.ListenAndServe(":"+port, nil)
 }
 
+type UserManifestData struct {
+	Name      string
+	ShortName string
+	StartURL  string
+}
+
 func manifestHandler(w http.ResponseWriter, r *http.Request) {
+
+	userManifestData := UserManifestData{
+		Name:      r.URL.Query().Get("name"),
+		ShortName: r.URL.Query().Get("short_name"),
+		StartURL:  r.URL.Query().Get("start_url"),
+	}
+
 	manifest := Manifest{
-		Name:      "My PWA",
-		ShortName: "PWA",
-		StartURL:  "/",
+		Name:      userManifestData.Name,
+		ShortName: userManifestData.ShortName,
+		StartURL:  userManifestData.ShortName,
 		Icons: []Icon{
 			{
 				Src:   "/icon.png",
@@ -76,7 +92,21 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, url, http.StatusMovedPermanently)
+}
 
+func appHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("app.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	paramsData := r.URL.Query().Encode()
+	err = tmpl.Execute(w, template.URL(paramsData))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
