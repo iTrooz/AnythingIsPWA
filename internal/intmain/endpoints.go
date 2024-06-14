@@ -6,6 +6,22 @@ import (
 	"net/http"
 )
 
+type Manifest struct {
+	Name            string `json:"name"`
+	ShortName       string `json:"short_name"`
+	StartURL        string `json:"start_url"`
+	Icons           []Icon `json:"icons"`
+	Display         string `json:"display"`
+	ThemeColor      string `json:"theme_color"`
+	BackgroundColor string `json:"background_color"`
+}
+
+type Icon struct {
+	Src   string `json:"src"`
+	Sizes string `json:"sizes"`
+	Type  string `json:"type"`
+}
+
 type UserManifestData struct {
 	Name      string
 	ShortName string
