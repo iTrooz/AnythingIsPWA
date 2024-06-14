@@ -26,7 +26,7 @@ func manifestHandler(w http.ResponseWriter, r *http.Request) {
 		StartURL:  userManifestData.ShortName,
 		Icons: []Icon{
 			{
-				Src:   "/icon.png",
+				Src:   "/app/icon.png",
 				Sizes: "192x192",
 				Type:  "image/png",
 			},
