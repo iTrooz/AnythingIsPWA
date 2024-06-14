@@ -8,11 +8,21 @@
     <p>Hello</p>
     <form action="/app">
         <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
+        <input type="text" name="name" required>
         <br>
+
+        <label for="short_name">Short name:</label>
+        <input type="text" name="short_name">
+        <br>
+
+        <label for="start_url">URL:</label>
+        <input type="text" name="start_url" required>
+        <br>
+
         <label for="image">Image:</label>
-        <input type="file" id="image" name="image" accept="image/*" required>
+        <input type="file" id="image" name="image" accept="image/*">
         <br>
+
         <input type="submit" value="Submit">
     </form>
 </body>
