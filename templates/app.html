@@ -28,7 +28,9 @@
         });
 
         async function install() {
-            if (!installPrompt) return;
+            if (!installPrompt) {
+                alert("Oops ! It seems like the install button doesn't work in this browser. Try to use the native browser install button. If there is none, your browser probably doesn't support PWAs, or the PWA was deemed invalid for some reason.")
+            }
             installPrompt.prompt();
             const { outcome } = await installPrompt.userChoice;
             if (outcome == "dismissed") {
