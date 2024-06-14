@@ -28,6 +28,7 @@ COPY --from=build /app/anythingispwa /
 
 # Copy assets
 COPY templates/ /templates
+COPY static/ /static
 
 EXPOSE 8080/tcp
 
