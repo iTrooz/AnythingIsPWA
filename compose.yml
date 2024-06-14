@@ -1,0 +1,10 @@
+services:
+  app:
+    image: anythingispwa
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    ports:
+      - $PORT:8080
+    restart: always
