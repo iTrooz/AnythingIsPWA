@@ -91,7 +91,7 @@ func manifestHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func iconHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "icon.jpg")
+	http.ServeFile(w, r, "icon.png")
 }
 
 func redirectHandler(w http.ResponseWriter, r *http.Request) {
