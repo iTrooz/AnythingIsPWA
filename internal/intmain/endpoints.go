@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 )
 
 type Manifest struct {
@@ -29,13 +30,18 @@ type UserManifestData struct {
 	StartURL  string
 }
 
+func CreateUserManifestData(query url.Values) UserManifestData {
+	return UserManifestData{
+		Name:      query.Get("name"),
+		ShortName: query.Get("short_name"),
+		StartURL:  query.Get("start_url"),
+	}
+
+}
+
 func manifestHandler(w http.ResponseWriter, r *http.Request) {
 
-	userManifestData := UserManifestData{
-		Name:      r.URL.Query().Get("name"),
-		ShortName: r.URL.Query().Get("short_name"),
-		StartURL:  r.URL.Query().Get("start_url"),
-	}
+	userManifestData := CreateUserManifestData(r.URL.Query())
 
 	manifest := Manifest{
 		Name:      userManifestData.Name,
@@ -91,8 +97,17 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	paramsData := r.URL.Query().Encode()
-	err = tmpl.Execute(w, template.URL(paramsData))
+	type AppInput struct {
+		UserManifestData
+		ParamsStr template.URL
+	}
+
+	paramsStr := r.URL.Query().Encode()
+	input := AppInput{
+		UserManifestData: CreateUserManifestData(r.URL.Query()),
+		ParamsStr:        template.URL(paramsStr), // to avoid escaping
+	}
+	err = tmpl.Execute(w, input)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
