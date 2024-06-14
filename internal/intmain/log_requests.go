@@ -20,7 +20,6 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rec := statusRecorder{w, 200}
 		next.ServeHTTP(&rec, r)
-		println(rec.status)
 		fmt.Printf("%v %v %v\n", rec.status, r.Method, r.URL.Path)
 	})
 }
