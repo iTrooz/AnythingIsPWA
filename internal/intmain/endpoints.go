@@ -43,7 +43,7 @@ func manifestHandler(w http.ResponseWriter, r *http.Request) {
 		Icons: []Icon{
 			{
 				Src:   "/app/icon.png",
-				Sizes: "192x192",
+				Sizes: "512x512",
 				Type:  "image/png",
 			},
 		},
