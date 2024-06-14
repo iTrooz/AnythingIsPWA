@@ -28,6 +28,7 @@ type UserManifestData struct {
 	Name      string
 	ShortName string
 	StartURL  string
+	IconURL  string
 }
 
 func CreateUserManifestData(query url.Values) (*UserManifestData, error) {
@@ -47,6 +48,7 @@ func CreateUserManifestData(query url.Values) (*UserManifestData, error) {
 		Name:      query.Get("name"),
 		ShortName: query.Get("short_name"),
 		StartURL:  startURL.String(),
+		IconURL: query.Get("icon_url"),
 	}, nil
 
 }
@@ -64,14 +66,19 @@ func manifestHandler(w http.ResponseWriter, r *http.Request) {
 		shortName = userManifestData.Name
 	}
 
+	iconURL := userManifestData.IconURL
+	if iconURL == "" {
+		iconURL = "/app/icon.png"
+	}
+
 	manifest := Manifest{
 		Name:      userManifestData.Name,
 		ShortName: shortName,
 		StartURL:  "/redirect?url=" + userManifestData.StartURL,
 		Icons: []Icon{
 			{
-				Src:   "/app/icon.png",
-				Sizes: "512x512",
+				Src:   iconURL,
+				Sizes: "512x512", // may not be accurate
 				Type:  "image/png",
 			},
 		},
