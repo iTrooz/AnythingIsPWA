@@ -30,18 +30,34 @@ type UserManifestData struct {
 	StartURL  string
 }
 
-func CreateUserManifestData(query url.Values) UserManifestData {
-	return UserManifestData{
+func CreateUserManifestData(query url.Values) (*UserManifestData, error) {
+	startURL, err := url.Parse(query.Get("start_url"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse start_url: %w", err)
+	}
+
+	if startURL.Scheme == "" {
+		// assume https
+		startURL.Scheme = "https"
+	} else if startURL.Scheme != "http" && startURL.Scheme != "https" {
+		return nil, fmt.Errorf("invalid start_url scheme: %v", startURL.Scheme)
+	}
+
+	return &UserManifestData{
 		Name:      query.Get("name"),
 		ShortName: query.Get("short_name"),
-		StartURL:  query.Get("start_url"),
-	}
+		StartURL:  startURL.String(),
+	}, nil
 
 }
 
 func manifestHandler(w http.ResponseWriter, r *http.Request) {
 
-	userManifestData := CreateUserManifestData(r.URL.Query())
+	userManifestData, err := CreateUserManifestData(r.URL.Query())
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to parse user manifest data: %v", err), http.StatusBadRequest)
+		return
+	}
 
 	manifest := Manifest{
 		Name:      userManifestData.Name,
@@ -102,9 +118,15 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 		ParamsStr template.URL
 	}
 
+	userManifestData, err := CreateUserManifestData(r.URL.Query())
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to parse user manifest data: %v", err), http.StatusBadRequest)
+		return
+	}
+
 	paramsStr := r.URL.Query().Encode()
 	input := AppInput{
-		UserManifestData: CreateUserManifestData(r.URL.Query()),
+		UserManifestData: *userManifestData,
 		ParamsStr:        template.URL(paramsStr), // to avoid escaping
 	}
 	err = tmpl.Execute(w, input)
