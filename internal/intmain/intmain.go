@@ -23,7 +23,7 @@ type Icon struct {
 }
 
 func Main() {
-	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/{$}", rootHandler)
 	http.HandleFunc("/app", appHandler)
 	http.HandleFunc("/app/manifest.json", manifestHandler)
 	http.HandleFunc("/app/icon.png", iconHandler)
