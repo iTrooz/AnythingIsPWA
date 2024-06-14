@@ -59,9 +59,14 @@ func manifestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	shortName := userManifestData.ShortName
+	if shortName == "" {
+		shortName = userManifestData.Name
+	}
+
 	manifest := Manifest{
 		Name:      userManifestData.Name,
-		ShortName: userManifestData.ShortName,
+		ShortName: shortName,
 		StartURL:  "/redirect?url=" + userManifestData.StartURL,
 		Icons: []Icon{
 			{
