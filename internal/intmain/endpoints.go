@@ -40,7 +40,7 @@ func manifestHandler(w http.ResponseWriter, r *http.Request) {
 	manifest := Manifest{
 		Name:      userManifestData.Name,
 		ShortName: userManifestData.ShortName,
-		StartURL:  userManifestData.StartURL,
+		StartURL:  "/redirect?url=" + userManifestData.StartURL,
 		Icons: []Icon{
 			{
 				Src:   "/app/icon.png",
