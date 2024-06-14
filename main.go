@@ -27,6 +27,7 @@ func main() {
 	http.HandleFunc("/manifest.json", manifestHandler)
 	http.HandleFunc("/icon.png", iconHandler)
 	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/redirect", redirectHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -67,11 +68,17 @@ func iconHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "icon.jpg")
 }
 
-func rootHandler(w http.ResponseWriter, r *http.Request) {
+func redirectHandler(w http.ResponseWriter, r *http.Request) {
 	url := r.URL.Query().Get("url")
 	if url == "" {
-		http.ServeFile(w, r, "index.html")
-	} else {
-		http.Redirect(w, r, url, http.StatusMovedPermanently)
+		http.Error(w, "url parameter is required", http.StatusBadRequest)
+		return
 	}
+
+	http.Redirect(w, r, url, http.StatusMovedPermanently)
+
+}
+
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "index.html")
 }
