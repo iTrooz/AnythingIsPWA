@@ -6,9 +6,9 @@
 <body>
     <p>Source code and explanation: https://github.com/iTrooz/AnythingIsPWA</p>
 
-    <form action="/app">
+    <form name="form" onsubmit="return validateForm()" action="/app" >
         <label for="name">Name:</label>
-        <input type="text" name="name" required>
+        <input type="text" name="name">
         <br>
 
         <label for="short_name">Short name:</label>
@@ -16,15 +16,38 @@
         <br>
 
         <label for="start_url">URL of the website:</label>
-        <input type="url" name="start_url" required>
+        <input type="text" name="start_url">
         <br>
         
         <label for="icon_url">Icon link <bold>(must be png, and at least 144x144)</bold>:</label>
-        <input type="url" name="icon_url">
+        <input type="text" name="icon_url">
         <br>
         <br>
 
         <input type="submit" value="Generate PWA manifest">
     </form>
+    <script>
+        function isURL(s) {
+            try {
+                new URL(s);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function validateForm() {
+            let form = document.forms["form"];
+
+            if (!form["name"].value.trim()) {
+                alert("Name must be filled out");
+            }else if (!isURL(form["start_url"].value)) {
+                alert("URL of the website is not valid");
+            } else if (!isURL(form["icon_url"].value)) {
+                alert("URL of the icon is not valid");
+            } else return true;
+            return false;
+        } 
+    </script>
 </body>
 </html>
