@@ -55,7 +55,7 @@ document.getElementById("start_url").addEventListener("input", function() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Error fetching infos for website:', error);
     });
 });
 
