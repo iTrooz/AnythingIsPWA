@@ -12,14 +12,28 @@ form["icon_url"].addEventListener("input", function() {
     manualImage = manualImage;
 
     // Image preview
-    let img = document.getElementById("icon_preview");
     if (hasText) {
-        img.hidden = false;
-        img.src = this.value;
+        icon_preview.hidden = false;
+        icon_preview.src = this.value;
     } else {
-        img.hidden = true;
+        icon_preview.hidden = true;
     }
-        
+
+    // Prevent form from submitting while the image has not loaded
+    icon_preview.has_loaded = false;
+});
+
+icon_preview.addEventListener("load", function() {
+    icon_preview.has_loaded = true;
+    // true if image will need server processing
+    let needProcessing = doesImageNeedProcessing();
+
+    form["process_image"].value = needProcessing;
+    if (needProcessing) {
+        process_image_hint.innerHTML = "The icon does not meet PWA standard (png with minimum size 144x144) and will be processed to ensure it meets the requirements";
+    } else {
+        process_image_hint.innerHTML = "";
+    }
 });
 
 document.getElementById("start_url").addEventListener("input", function() {
@@ -54,25 +68,16 @@ function isURL(s) {
     }
 }
 
-function validateIcon(icon_url) {
-    return new Promise(resolve=> {
-        let iconUrl = form["icon_url"].value;
-        let img = new Image();
-        img.onload = function() {
-            let ext = iconUrl.split('.').pop();
-            if (img.width >= 144 && img.height >= 144 && ext == "png") {
-                resolve(true);
-            } else {
-                alert(`Icon must be a PNG image with a size of at least 144x144 pixels (Currently width=${img.width}, height=${img.height}, type=${ext})`);
-                resolve(false);
-            }
-        };
-        img.onerror = function(e) {
-            alert("Failed to load the icon image");
-            resolve(false);
-        };
-        img.src = iconUrl;
-    })
+// check if the image needs server-side processing
+function doesImageNeedProcessing() {
+    // check for png extension
+    let ext = form["icon_url"].value.split('.').pop();
+    if (ext != "png") return true;
+    
+    // Check for size
+    if (icon_preview.naturalWidth < 144 || icon_preview.naturalHeight < 144) return true;
+
+    return false;
 }
 
 async function validateForm() {
@@ -87,14 +92,10 @@ async function validateForm() {
     } else if (!isURL(form["icon_url"].value)) {
         alert("URL of the icon is not valid");
         return;
+    } else if (!icon_preview.has_loaded) {
+        alert("Icon image has not loaded yet");
+        return;
     }
-
-    hint.innerHTML = "Checking icon validity..";
-    if (!await validateIcon(form["icon_url"].value)) {
-        hint.innerHTML = "";
-        return false;
-    }
-    hint.innerHTML = "";
 
     form["short_name"].value = form["name"].value;
 
