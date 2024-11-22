@@ -56,6 +56,28 @@ func verifyURLIsSafe(url_str string) error {
 
 }
 
+func tryFindIcon(str_url string, n *html.Node) string {
+	if n.Type == html.ElementNode && n.Data == "link" {
+		for _, attr := range n.Attr {
+			if attr.Key == "rel" && slices.Contains(strings.Split(attr.Val, " "), "icon") {
+				for _, attr := range n.Attr {
+					if attr.Key == "href" {
+						icon, err := url.JoinPath(str_url, attr.Val)
+						if err != nil {
+							fmt.Printf("Failed to join URL path: %v\n", err)
+						} else {
+							println("RETURNING ICON=" + icon)
+							return icon
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return ""
+}
+
 func getWebsiteInfos(str_url string) (*WebsiteInfos, error) {
 	// verify URL
 	err := verifyURLIsSafe(str_url)
@@ -80,24 +102,22 @@ func getWebsiteInfos(str_url string) (*WebsiteInfos, error) {
 	var title, icon string
 	var f func(*html.Node)
 	f = func(n *html.Node) {
+
+		// search title
 		if n.Type == html.ElementNode && n.Data == "title" && n.FirstChild != nil {
 			title = n.FirstChild.Data
 		}
-		if n.Type == html.ElementNode && n.Data == "link" {
-			for _, attr := range n.Attr {
-				if attr.Key == "rel" && slices.Contains(strings.Split(attr.Val, " "), "icon") {
-					for _, attr := range n.Attr {
-						if attr.Key == "href" {
-							icon, err = url.JoinPath(str_url, attr.Val)
-							if err != nil {
-								fmt.Printf("Failed to join URL path: %v\n", err)
-							}
-						}
-					}
-				}
-			}
-		}
+
+		// search icon
+		icon = tryFindIcon(str_url, n)
+
+		// Process childs
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			// stop searching if we found both
+			if title != "" && icon != "" {
+				return
+			}
+
 			f(c)
 		}
 	}
