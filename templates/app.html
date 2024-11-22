@@ -9,11 +9,6 @@
     
     <h1>You chose these options:</h1>
     <p>Name: {{.Name}}</p>
-    {{if not .ShortName}}
-        <p>Short name not set (will default to Name: {{.Name}})</p>
-    {{else}}
-        <p>Short name: {{.ShortName}}</p>
-    {{end}}
     <p>Start URL: {{.StartURL}}</p>
 
     <button onclick="install()">Install</button>

@@ -20,9 +20,8 @@
         <input id="name" type="text" name="name">
         <br>
 
-        <label for="short_name">Short name:</label>
-        <input type="text" name="short_name">
-        <br>
+        <!-- Short name is too cumbersome for users, let's make it implicitely mirror name -->
+        <input type="hidden" name="short_name">
 
         <label for="icon_url">Icon link <bold>(must be png, and at least 144x144)</bold>:</label>
         <input type="text" name="icon_url">

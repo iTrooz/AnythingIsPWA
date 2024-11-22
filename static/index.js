@@ -85,5 +85,7 @@ async function validateForm() {
     }
     hint.innerHTML = "";
 
+    form["short_name"].value = form["name"].value;
+
     form.submit();
 } 
