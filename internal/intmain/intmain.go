@@ -13,7 +13,7 @@ func Main() {
 	http.HandleFunc("/app/icon.png", iconHandler)
 
 	http.HandleFunc("/redirect", redirectHandler)
-	http.HandleFunc("/getWebsiteInfo", getWebsiteInfoHandler)
+	http.HandleFunc("/getWebsiteInfos", getWebsiteInfoHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {

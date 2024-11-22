@@ -13,7 +13,7 @@ import (
 
 type WebsiteInfos struct {
 	Title string `json:"title"`
-	Icon  string `json:"icon"`
+	IconURL  string `json:"icon_url"`
 }
 
 // Verify we aren't being tricked by a malicious actor
@@ -134,7 +134,7 @@ func getWebsiteInfos(str_url string) (*WebsiteInfos, error) {
 	// Return
 	return &WebsiteInfos{
 		Title: title,
-		Icon:  icon,
+		IconURL:  icon,
 	}, nil
 
 }

@@ -10,18 +10,18 @@
 
     <!-- See https://stackoverflow.com/a/57791136 -->
     <form name="form" onsubmit="validateForm(); return false" action="/app" >
+        <label for="start_url">URL of the website:</label>
+        <input id="start_url" type="text" name="start_url">
+        <br>
+        
         <label for="name">Name:</label>
-        <input type="text" name="name">
+        <input id="name" type="text" name="name">
         <br>
 
         <label for="short_name">Short name:</label>
         <input type="text" name="short_name">
         <br>
 
-        <label for="start_url">URL of the website:</label>
-        <input type="text" name="start_url">
-        <br>
-        
         <label for="icon_url">Icon link <bold>(must be png, and at least 144x144)</bold>:</label>
         <input type="text" name="icon_url">
         <br>
@@ -34,6 +34,42 @@
         <input type="submit" value="Generate PWA manifest">
     </form>
     <script>
+        let manualName = false;
+        let manualImage = false;
+
+        let form = document.forms["form"];
+
+        form["name"].addEventListener("input", function() {
+            manualName = !!this.value.trim();
+        });
+
+        form["icon_url"].addEventListener("input", function() {
+            manualImage = !!this.value.trim();
+        });
+        
+        document.getElementById("start_url").addEventListener("input", function() {
+            if (manualName&&manualImage) return;
+
+            fetch(`/getWebsiteInfos?url=${encodeURIComponent(this.value)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!manualName) {
+                    form["name"].value = data.title || "";
+                }
+                if (!manualImage) {
+                    form["icon_url"].value = data.icon_url || "";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
         function isURL(s) {
             try {
                 new URL(s);
