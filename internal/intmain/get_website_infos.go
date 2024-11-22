@@ -66,7 +66,6 @@ func tryFindIcon(str_url string, n *html.Node) string {
 						if err != nil {
 							fmt.Printf("Failed to join URL path: %v\n", err)
 						} else {
-							println("RETURNING ICON=" + icon)
 							return icon
 						}
 					}
