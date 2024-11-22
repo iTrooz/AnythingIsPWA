@@ -8,7 +8,18 @@ form["name"].addEventListener("input", function() {
 });
 
 form["icon_url"].addEventListener("input", function() {
-    manualImage = !!this.value.trim();
+    let hasText = !!this.value.trim();
+    manualImage = manualImage;
+
+    // Image preview
+    let img = document.getElementById("icon_preview");
+    if (hasText) {
+        img.hidden = false;
+        img.src = this.value;
+    } else {
+        img.hidden = true;
+    }
+        
 });
 
 document.getElementById("start_url").addEventListener("input", function() {
