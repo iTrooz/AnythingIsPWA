@@ -155,3 +155,28 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "templates/index.html")
 }
+
+// get a website title and icon
+func getWebsiteInfoHandler(w http.ResponseWriter, r *http.Request) {
+	url := r.URL.Query().Get("url")
+	if url == "" {
+		http.Error(w, "url parameter is required", http.StatusBadRequest)
+		return
+	}
+
+	infos, err := getWebsiteInfos(url)
+	if err != nil {
+		// for security, do not expose the error message in this case
+		fmt.Printf("Failed to get website infos: %v\n", err)
+		http.Error(w, "Failed to get website infos", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	err = json.NewEncoder(w).Encode(infos)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
