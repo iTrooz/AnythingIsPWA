@@ -5,6 +5,8 @@ import (
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type imageEntry struct {
@@ -67,11 +69,14 @@ func (c *ImageCache) canBeAdded(value []byte) error {
 
 // Evict data which has passed timeout
 func (c *ImageCache) Evict() {
+	evicted := 0
 	for k, v := range c.entries {
 		if time.Since(v.addedTime) > c.storageTime {
 			delete(c.entries, k)
+			evicted++
 		}
 	}
+	logrus.Infof("Evicted %d entries", evicted)
 }
 
 func (c *ImageCache) Add(value []byte) (string, error) {
@@ -97,6 +102,8 @@ func (c *ImageCache) Add(value []byte) (string, error) {
 		data:      value,
 		addedTime: time.Now(),
 	}
+
+	logrus.Debugf("Added entry with key %s (size=%v)", key, len(value))
 
 	return key, nil
 }
