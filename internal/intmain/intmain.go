@@ -15,6 +15,9 @@ func Main() {
 	http.HandleFunc("/redirect", redirectHandler)
 	http.HandleFunc("/getWebsiteInfos", getWebsiteInfoHandler)
 
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
