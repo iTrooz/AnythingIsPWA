@@ -19,5 +19,9 @@ func Main() {
 		port = "8080"
 	}
 	fmt.Printf("Server listening on port %s...\n", port)
-	http.ListenAndServe(":"+port, loggingMiddleware(http.DefaultServeMux))
+
+	err := http.ListenAndServe(":"+port, loggingMiddleware(http.DefaultServeMux))
+	if err != nil {
+		fmt.Printf("Failed to start server: %v\n", err)
+	}
 }

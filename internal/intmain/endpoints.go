@@ -28,7 +28,7 @@ type UserManifestData struct {
 	Name      string
 	ShortName string
 	StartURL  string
-	IconURL  string
+	IconURL   string
 }
 
 func CreateUserManifestData(query url.Values) (*UserManifestData, error) {
@@ -48,7 +48,7 @@ func CreateUserManifestData(query url.Values) (*UserManifestData, error) {
 		Name:      query.Get("name"),
 		ShortName: query.Get("short_name"),
 		StartURL:  startURL.String(),
-		IconURL: query.Get("icon_url"),
+		IconURL:   query.Get("icon_url"),
 	}, nil
 
 }
@@ -94,7 +94,11 @@ func manifestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(manifestBytes)
+	_, err = w.Write(manifestBytes)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func iconHandler(w http.ResponseWriter, r *http.Request) {
