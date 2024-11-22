@@ -1,9 +1,10 @@
 package intmain
 
 import (
-	"fmt"
 	"net/http"
 	"os"
+
+	"github.com/sirupsen/logrus"
 )
 
 func Main() {
@@ -22,10 +23,10 @@ func Main() {
 	if port == "" {
 		port = "8080"
 	}
-	fmt.Printf("Server listening on port %s...\n", port)
+	logrus.Infof("Server listening on port %s...", port)
 
 	err := http.ListenAndServe(":"+port, loggingMiddleware(http.DefaultServeMux))
 	if err != nil {
-		fmt.Printf("Failed to start server: %v\n", err)
+		logrus.Fatalf("Failed to start server: %v", err)
 	}
 }

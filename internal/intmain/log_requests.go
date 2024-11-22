@@ -1,8 +1,9 @@
 package intmain
 
 import (
-	"fmt"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // see https://gist.github.com/nstogner/2d6e122418ad3e21a175974e5c9bb36c
@@ -21,6 +22,6 @@ func loggingMiddleware(next http.Handler) http.Handler {
 		rec := statusRecorder{w, 200}
 		next.ServeHTTP(&rec, r)
 
-		fmt.Printf("%v %v %v\n", rec.status, r.Method, r.URL.String())
+		log.Infof("%v %v %v", rec.status, r.Method, r.URL.String())
 	})
 }

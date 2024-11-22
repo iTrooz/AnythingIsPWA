@@ -8,12 +8,13 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/html"
 )
 
 type WebsiteInfos struct {
-	Title string `json:"title"`
-	IconURL  string `json:"icon_url"`
+	Title   string `json:"title"`
+	IconURL string `json:"icon_url"`
 }
 
 // Verify we aren't being tricked by a malicious actor
@@ -64,7 +65,7 @@ func tryFindIcon(str_url string, n *html.Node) string {
 					if attr.Key == "href" {
 						icon, err := url.JoinPath(str_url, attr.Val)
 						if err != nil {
-							fmt.Printf("Failed to join URL path: %v\n", err)
+							logrus.Warnf("Failed to join URL path: %v", err)
 						} else {
 							return icon
 						}
@@ -132,8 +133,8 @@ func getWebsiteInfos(str_url string) (*WebsiteInfos, error) {
 
 	// Return
 	return &WebsiteInfos{
-		Title: title,
-		IconURL:  icon,
+		Title:   title,
+		IconURL: icon,
 	}, nil
 
 }

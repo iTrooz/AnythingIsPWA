@@ -6,6 +6,8 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Manifest struct {
@@ -167,7 +169,7 @@ func getWebsiteInfoHandler(w http.ResponseWriter, r *http.Request) {
 	infos, err := getWebsiteInfos(url)
 	if err != nil {
 		// for security, do not expose the error message in this case
-		fmt.Printf("Failed to get website infos: %v\n", err)
+		logrus.Errorf("Failed to get website infos: %v", err)
 		http.Error(w, "Failed to get website infos", http.StatusInternalServerError)
 		return
 	}
