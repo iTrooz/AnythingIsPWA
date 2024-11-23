@@ -1,11 +1,13 @@
 package websiteinfos
 
 import (
+	"bytes"
 	"fmt"
 	"net"
 	"net/http"
 	"net/url"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -57,25 +59,129 @@ func verifyURLIsSafe(url_str string) error {
 
 }
 
-func tryFindIcon(str_url string, n *html.Node) string {
-	if n.Type == html.ElementNode && n.Data == "link" {
-		for _, attr := range n.Attr {
-			if attr.Key == "rel" && slices.Contains(strings.Split(attr.Val, " "), "icon") {
-				for _, attr := range n.Attr {
-					if attr.Key == "href" {
-						icon, err := url.JoinPath(str_url, attr.Val)
-						if err != nil {
-							logrus.Warnf("Failed to join URL path: %v", err)
-						} else {
-							return icon
-						}
-					}
-				}
+type icon struct {
+	height int
+	width  int
+	link   string
+}
+
+func (i *icon) AnySize() bool {
+	return i.height == 0 && i.width == 0
+}
+
+func sizeScore(height, width int) int {
+	return height * width
+}
+
+func parseSize(size string) (int, int) {
+	split := strings.Split(size, "x")
+	if len(split) != 2 {
+		logrus.Warnf("Found invalid size property: %v", size)
+		return 0, 0
+	}
+
+	height, err := strconv.Atoi(split[0])
+	if err != nil {
+		logrus.Warnf("Failed to parse height: %v", err)
+		return 0, 0
+	}
+
+	width, err := strconv.Atoi(split[1])
+	if err != nil {
+		logrus.Warnf("Failed to parse width: %v", err)
+		return 0, 0
+	}
+
+	return height, width
+}
+
+// Construct a icon struct that represents the best size this icon can have
+func constructIconStruct(base_link, rel_link string, sizes string) *icon {
+	link, err := url.JoinPath(base_link, rel_link)
+	if err != nil {
+		logrus.Warnf("Failed to join URL path: %v", err)
+		return nil
+	}
+
+	currentIcon := icon{}
+
+	for _, size := range strings.Split(sizes, " ") {
+		if size == "any" {
+			return &icon{
+				link: link,
+			}
+		}
+
+		height, width := parseSize(size)
+		if height == 0 && width == 0 {
+			continue
+		}
+
+		if sizeScore(height, width) > sizeScore(currentIcon.height, currentIcon.width) {
+			currentIcon = icon{
+				height: height,
+				width:  width,
+				link:   link,
 			}
 		}
 	}
 
-	return ""
+	if currentIcon.height == 0 && currentIcon.width == 0 {
+		return nil
+	} else {
+		return &currentIcon
+	}
+}
+
+func nodeToString(node *html.Node) string {
+	var b bytes.Buffer
+	err := html.Render(&b, node)
+	if err != nil {
+		return "Rendering error: " + err.Error()
+	}
+	return b.String()
+}
+
+func getAttr(n *html.Node, key string) *html.Attribute {
+	for _, attr := range n.Attr {
+		if attr.Key == key {
+			return &attr
+		}
+	}
+	return nil
+}
+
+func tryFindIcon(str_url string, n *html.Node) *icon {
+	// Search for basic icons
+	if n.Type == html.ElementNode && n.Data == "link" {
+		for _, attr := range n.Attr {
+			// Look for rel
+			if attr.Key != "rel" {
+				continue
+			}
+
+			// check if icon or apple-touch-icon
+			values := strings.Split(attr.Val, " ")
+			if !slices.Contains(values, "icon") && !slices.Contains(values, "apple-touch-icon") {
+				continue
+			}
+
+			href := getAttr(n, "href")
+			sizes := getAttr(n, "sizes")
+			if href == nil || sizes == nil {
+				logrus.Warningf("Found icon without href or sizes: %v", nodeToString(n))
+				continue
+			}
+
+			// Extract icon
+			icon := constructIconStruct(str_url, href.Val, sizes.Val)
+			if icon != nil {
+				return icon
+			}
+		}
+	}
+
+	return nil
 }
 
 func Get(str_url string) (*WebsiteInfos, error) {
@@ -99,7 +205,8 @@ func Get(str_url string) (*WebsiteInfos, error) {
 	}
 
 	// Search HTML for title and icon
-	var title, icon string
+	var title string
+	var icon *icon
 	var f func(*html.Node)
 	f = func(n *html.Node) {
 
@@ -114,7 +221,7 @@ func Get(str_url string) (*WebsiteInfos, error) {
 		// Process childs
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			// stop searching if we found both
-			if title != "" && icon != "" {
+			if title != "" && icon != nil {
 				return
 			}
 
@@ -127,14 +234,14 @@ func Get(str_url string) (*WebsiteInfos, error) {
 	if title == "" {
 		return nil, fmt.Errorf("failed to find title in HTML")
 	}
-	if icon == "" {
+	if icon == nil {
 		return nil, fmt.Errorf("failed to find icon in HTML")
 	}
 
 	// Return
 	return &WebsiteInfos{
 		Title:   title,
-		IconURL: icon,
+		IconURL: icon.link,
 	}, nil
 
 }
