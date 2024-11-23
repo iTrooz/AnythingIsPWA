@@ -9,7 +9,8 @@
     
     <h1>You chose these options:</h1>
     <p>Name: {{.Name}}</p>
-    <p>Start URL: {{.StartURL}}</p>
+    <p>Start URL: <a href="{{.StartURL}}">{{.StartURL}}</a></p>
+    <p>Icon: <a href="{{.IconURL}}">{{.IconURL}}</a></p>
 
     <button onclick="install()">Install</button>
     
