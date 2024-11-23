@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/html"
 )
 
@@ -86,6 +87,13 @@ func Get(str_url string) (*WebsiteInfos, error) {
 
 		// search icon
 		icon = tryFindIcon(str_url, n)
+		if icon != nil {
+			// check if valid
+			if !isValidPWAIcon(*icon) {
+				icon = nil
+			}
+		}
+
 
 		// Process childs
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
@@ -106,6 +114,8 @@ func Get(str_url string) (*WebsiteInfos, error) {
 	if icon == nil {
 		return nil, fmt.Errorf("failed to find icon in HTML")
 	}
+
+	logrus.Infof("Found icon for website: %v", icon)
 
 	// Return
 	return &WebsiteInfos{

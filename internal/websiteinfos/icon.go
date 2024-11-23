@@ -145,3 +145,15 @@ func tryFindIcon(str_url string, n *html.Node) *icon {
 
 	return nil
 }
+
+func isValidPWAIcon(i icon) bool {
+	if i.mode == AnySize {
+		return true
+	}
+
+	if i.mode == Normal {
+		return i.height >= 144 && i.width >= 144
+	}
+
+	return false
+}
