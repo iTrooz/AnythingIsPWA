@@ -1,7 +1,6 @@
 package websiteinfos
 
 import (
-	"bytes"
 	"fmt"
 	"net"
 	"net/http"
@@ -131,24 +130,6 @@ func constructIconStruct(base_link, rel_link string, sizes string) *icon {
 	} else {
 		return &currentIcon
 	}
-}
-
-func nodeToString(node *html.Node) string {
-	var b bytes.Buffer
-	err := html.Render(&b, node)
-	if err != nil {
-		return "Rendering error: " + err.Error()
-	}
-	return b.String()
-}
-
-func getAttr(n *html.Node, key string) *html.Attribute {
-	for _, attr := range n.Attr {
-		if attr.Key == key {
-			return &attr
-		}
-	}
-	return nil
 }
 
 func tryFindIcon(str_url string, n *html.Node) *icon {
