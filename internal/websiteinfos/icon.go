@@ -87,30 +87,28 @@ func constructIconStruct(base_link, rel_link string, sizes string) *icon {
 func tryFindIcon(str_url string, n *html.Node) *icon {
 	// Search for basic icons
 	if n.Type == html.ElementNode && n.Data == "link" {
-		for _, attr := range n.Attr {
-			// Look for rel
-			if attr.Key != "rel" {
-				continue
-			}
+		rel := getAttr(n, "rel")
+		if rel == nil {
+			return nil
+		}
 
-			// check if icon or apple-touch-icon
-			values := strings.Split(attr.Val, " ")
-			if !slices.Contains(values, "icon") && !slices.Contains(values, "apple-touch-icon") {
-				continue
-			}
+		// check if icon or apple-touch-icon
+		values := strings.Split(rel.Val, " ")
+		if !slices.Contains(values, "icon") && !slices.Contains(values, "apple-touch-icon") {
+			return nil
+		}
 
-			href := getAttr(n, "href")
-			sizes := getAttr(n, "sizes")
-			if href == nil || sizes == nil {
-				logrus.Warningf("Found icon without href or sizes: %v", nodeToString(n))
-				continue
-			}
+		href := getAttr(n, "href")
+		sizes := getAttr(n, "sizes")
+		if href == nil || sizes == nil {
+			logrus.Warningf("Found icon without href or sizes: %v", nodeToString(n))
+			return nil
+		}
 
-			// Extract icon
-			icon := constructIconStruct(str_url, href.Val, sizes.Val)
-			if icon != nil {
-				return icon
-			}
+		// Extract icon
+		icon := constructIconStruct(str_url, href.Val, sizes.Val)
+		if icon != nil {
+			return icon
 		}
 	}
 
