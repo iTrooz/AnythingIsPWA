@@ -10,10 +10,20 @@ import (
 	"golang.org/x/net/html"
 )
 
+type iconType int64
+
+const (
+	None        iconType = 0
+	Normal      iconType = 1
+	AnySize     iconType = 2
+	UnknownSize iconType = 3
+)
+
 type icon struct {
 	height int
 	width  int
 	link   string
+	mode   iconType
 }
 
 func (i *icon) AnySize() bool {
@@ -47,29 +57,33 @@ func parseSize(size string) (int, int) {
 }
 
 // Construct a icon struct that represents the best size this icon can have
-func constructIconStruct(base_link, rel_link string, sizes string) *icon {
-	link, err := url.JoinPath(base_link, rel_link)
-	if err != nil {
-		logrus.Warnf("Failed to join URL path: %v", err)
-		return nil
+func guessIconSize(link string, sizes string) icon {
+	// start with unknown size by default
+	currentIcon := icon{
+		link:   link,
+		height: 0,
+		width:  0,
+		mode:   UnknownSize,
 	}
 
-	currentIcon := icon{}
-
 	for _, size := range strings.Split(sizes, " ") {
+		// Check size attribute
+		// if any size, don't look any further, we got the best possible
 		if size == "any" {
-			return &icon{
+			return icon{
 				link: link,
+				mode: AnySize,
 			}
 		}
 
 		height, width := parseSize(size)
-		if height == 0 && width == 0 {
+		if height == 0 && width == 0 { // unknown size
 			continue
 		}
 
 		if sizeScore(height, width) > sizeScore(currentIcon.height, currentIcon.width) {
 			currentIcon = icon{
+				mode:   Normal,
 				height: height,
 				width:  width,
 				link:   link,
@@ -77,11 +91,16 @@ func constructIconStruct(base_link, rel_link string, sizes string) *icon {
 		}
 	}
 
+	// if size is still unknown, check if it's a svg
 	if currentIcon.height == 0 && currentIcon.width == 0 {
-		return nil
-	} else {
-		return &currentIcon
+		if strings.HasSuffix(link, ".svg") {
+			return icon{
+				link: link,
+				mode: AnySize,
+			}
+		}
 	}
+	return currentIcon
 }
 
 func tryFindIcon(str_url string, n *html.Node) *icon {
@@ -107,11 +126,16 @@ func tryFindIcon(str_url string, n *html.Node) *icon {
 			return nil
 		}
 
-		// Extract icon
-		icon := constructIconStruct(str_url, href.Val, sizes.Val)
-		if icon != nil {
-			return icon
+		// Compute absolute link
+		link, err := url.JoinPath(str_url, href.Val)
+		if err != nil {
+			logrus.Warnf("Failed to join URL path: %v", err)
+			return nil
 		}
+
+		// Extract icon size
+		icon := guessIconSize(link, sizes.Val)
+		return &icon
 	}
 
 	return nil
