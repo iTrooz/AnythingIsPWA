@@ -52,6 +52,11 @@ document.getElementById("start_url").addEventListener("input", function() {
             'Content-Type': 'application/json'
         }
     })
+    .then(response => {
+        if (!response.ok)
+            throw `/getWebsiteInfos responded with status ${response.status})`;
+        return response;
+    })
     .then(response => response.json())
     .then(data => {
         if (!manualName) {
