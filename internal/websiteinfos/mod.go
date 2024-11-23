@@ -92,6 +92,7 @@ func Get(str_url string) (*WebsiteInfos, error) {
 		// search icon
 		icon = tryFindIcon(str_url, n)
 		if icon != nil {
+			logrus.Infof("Found potential icon: %v", icon)
 			// check if valid
 			if !isValidPWAIcon(*icon) {
 				icon = nil
