@@ -85,7 +85,7 @@ func constructIconStruct(base_link, rel_link string, sizes string) *icon {
 }
 
 func tryFindIcon(str_url string, n *html.Node) *icon {
-	// Search for basic icons
+	// Search for icons from <img> tags
 	if n.Type == html.ElementNode && n.Data == "link" {
 		rel := getAttr(n, "rel")
 		if rel == nil {
