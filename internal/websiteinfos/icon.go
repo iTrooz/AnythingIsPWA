@@ -94,7 +94,9 @@ func tryFindIcon(str_url string, n *html.Node) *icon {
 
 		// check if icon or apple-touch-icon
 		values := strings.Split(rel.Val, " ")
-		if !slices.Contains(values, "icon") && !slices.Contains(values, "apple-touch-icon") {
+		if !slices.Contains(values, "icon") &&
+			!slices.Contains(values, "apple-touch-icon") &&
+			!slices.Contains(values, "mask-icon") {
 			return nil
 		}
 
