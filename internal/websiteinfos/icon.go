@@ -28,7 +28,19 @@ type icon struct {
 }
 
 func (i *icon) String() string {
-	return fmt.Sprintf("Icon{height: %v, width: %v, link: %v, mode: %v}", i.height, i.width, i.link, i.mode)
+	var mode string
+	switch i.mode {
+	case AnySize:
+		mode = "AnySize"
+	case Normal:
+		mode = "Normal"
+	case UnknownSize:
+		mode = "UnknownSize"
+	default:
+		mode = "None"
+	}
+
+	return fmt.Sprintf("Icon{height: %v, width: %v, link: %v, mode: %v}", i.height, i.width, i.link, mode)
 }
 
 func (i *icon) AnySize() bool {
