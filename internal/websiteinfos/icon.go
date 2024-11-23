@@ -158,6 +158,7 @@ func tryFindIcon(str_url string, n *html.Node) *icon {
 	return nil
 }
 
+// Check if browsers would accept it as a PWA icon (currently only Chrome has these kind of limitations)
 func isValidPWAIcon(i icon) bool {
 	if i.mode == AnySize {
 		return true
