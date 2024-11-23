@@ -8,20 +8,24 @@ form["name"].addEventListener("input", function() {
 });
 
 form["icon_url"].addEventListener("input", function() {
-    let hasText = !!this.value.trim();
-    manualImage = hasText;
+    manualImage = !!this.value.trim();
+    reloadIcon();
+});
+
+function reloadIcon() {
+    let icon_url = form["icon_url"].value;
 
     // Image preview
-    if (hasText) {
+    if (icon_url.trim()) { // check if it has text
         icon_preview.hidden = false;
-        icon_preview.src = this.value;
+        icon_preview.src = icon_url;
     } else {
         icon_preview.hidden = true;
     }
 
     // Prevent form from submitting while the image has not loaded
     icon_preview.has_loaded = false;
-});
+}
 
 icon_preview.addEventListener("load", function() {
     icon_preview.has_loaded = true;
@@ -52,6 +56,7 @@ document.getElementById("start_url").addEventListener("input", function() {
         }
         if (!manualImage) {
             form["icon_url"].value = data.icon_url || "";
+            reloadIcon();
         }
     })
     .catch(error => {
