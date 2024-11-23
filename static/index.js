@@ -69,7 +69,7 @@ document.getElementById("start_url").addEventListener("input", function() {
 
 function isURL(s) {
     try {
-        new URL(s);
+        new URL(ensureScheme(s));
         return true;
     } catch (e) {
         return false;
@@ -86,6 +86,11 @@ function doesImageNeedProcessing() {
     if (icon_preview.naturalWidth < 144 || icon_preview.naturalHeight < 144) return true;
 
     return false;
+}
+
+function ensureScheme(url) {
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return "https://" + url;
 }
 
 // Validate form, and submit it if everything is alright
@@ -106,7 +111,16 @@ async function trySendForm() {
         return;
     }
 
+    // at this point, the form will be sent
+    // We just need to fill out a few things because the sevrer will not do any work for us,
+    // and we need to ensure the manifest will work
+
+    // Add short name property
     form["short_name"].value = form["name"].value;
+
+    // ensure a scheme is present
+    form["start_url"].value = ensureScheme(form["start_url"].value);
+    form["icon_url"].value = ensureScheme(form["icon_url"].value);
 
     form.submit();
 }
