@@ -3,15 +3,16 @@ let manualImage = false;
 
 let form = document.forms["form"];
 
+// check if we should enable autocompletion or if user entered something manually
 form["name"].addEventListener("input", function() {
     manualName = !!this.value.trim();
 });
-
 form["icon_url"].addEventListener("input", function() {
     manualImage = !!this.value.trim();
     reloadIcon();
 });
 
+// Reload the icon preview
 function reloadIcon() {
     let icon_url = form["icon_url"].value;
 
@@ -23,10 +24,11 @@ function reloadIcon() {
         icon_preview.hidden = true;
     }
 
-    // Prevent form from submitting while the image has not loaded
+    // Prevent form from submitting while the icon has not loaded
     icon_preview.has_loaded = false;
 }
 
+// Check when the icon has loaded
 icon_preview.addEventListener("load", function() {
     icon_preview.has_loaded = true;
     // true if image will need server processing
@@ -40,6 +42,7 @@ icon_preview.addEventListener("load", function() {
     }
 });
 
+// Autocomplete name and icon from the website
 document.getElementById("start_url").addEventListener("input", function() {
     if (manualName&&manualImage) return;
 
@@ -85,7 +88,8 @@ function doesImageNeedProcessing() {
     return false;
 }
 
-async function validateForm() {
+// Validate form, and submit it if everything is alright
+async function trySendForm() {
     let form = document.forms["form"];
 
     if (!form["name"].value.trim()) {
