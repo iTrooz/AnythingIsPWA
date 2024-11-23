@@ -9,7 +9,7 @@ form["name"].addEventListener("input", function() {
 
 form["icon_url"].addEventListener("input", function() {
     let hasText = !!this.value.trim();
-    manualImage = manualImage;
+    manualImage = hasText;
 
     // Image preview
     if (hasText) {
