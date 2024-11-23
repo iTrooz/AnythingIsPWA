@@ -27,10 +27,6 @@ func verifyURLIsSafe(url_str string) error {
 		return fmt.Errorf("failed to parse URL: %w", err)
 	}
 
-	if u.Scheme != "https" {
-		return fmt.Errorf("URL scheme is not HTTPS")
-	}
-
 	// Lookup if IP is private
 	ips, err := net.LookupIP(u.Hostname())
 	if err != nil {
@@ -55,8 +51,16 @@ func verifyURLIsSafe(url_str string) error {
 
 }
 func Get(str_url string) (*WebsiteInfos, error) {
+	// Force HTTPS
+	u, err := url.Parse(str_url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse URL: %w", err)
+	}
+	u.Scheme = "https"
+	str_url = u.String()
+
 	// verify URL
-	err := verifyURLIsSafe(str_url)
+	err = verifyURLIsSafe(str_url)
 	if err != nil {
 		return nil, fmt.Errorf("URL is not safe: %w", err)
 	}
@@ -93,7 +97,6 @@ func Get(str_url string) (*WebsiteInfos, error) {
 				icon = nil
 			}
 		}
-
 
 		// Process childs
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
