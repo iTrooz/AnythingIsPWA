@@ -1,6 +1,7 @@
 package websiteinfos
 
 import (
+	"fmt"
 	"net/url"
 	"slices"
 	"strconv"
@@ -24,6 +25,10 @@ type icon struct {
 	width  int
 	link   string
 	mode   iconType
+}
+
+func (i *icon) String() string {
+	return fmt.Sprintf("Icon{height: %v, width: %v, link: %v, mode: %v}", i.height, i.width, i.link, i.mode)
 }
 
 func (i *icon) AnySize() bool {
