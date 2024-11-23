@@ -109,4 +109,4 @@ async function trySendForm() {
     form["short_name"].value = form["name"].value;
 
     form.submit();
-} 
+}
