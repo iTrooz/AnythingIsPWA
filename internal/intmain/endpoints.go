@@ -1,6 +1,7 @@
 package intmain
 
 import (
+	"anythingispwa/internal/websiteinfos"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -166,7 +167,7 @@ func getWebsiteInfoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	infos, err := getWebsiteInfos(url)
+	infos, err := websiteinfos.Get(url)
 	if err != nil {
 		// for security, do not expose the error message in this case
 		logrus.Errorf("Failed to get website infos: %v", err)

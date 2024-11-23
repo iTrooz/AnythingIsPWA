@@ -1,4 +1,4 @@
-package intmain
+package websiteinfos
 
 import (
 	"fmt"
@@ -78,7 +78,7 @@ func tryFindIcon(str_url string, n *html.Node) string {
 	return ""
 }
 
-func getWebsiteInfos(str_url string) (*WebsiteInfos, error) {
+func Get(str_url string) (*WebsiteInfos, error) {
 	// verify URL
 	err := verifyURLIsSafe(str_url)
 	if err != nil {
