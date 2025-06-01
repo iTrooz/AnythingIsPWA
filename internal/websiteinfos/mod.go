@@ -111,20 +111,21 @@ func Get(str_url string) (*WebsiteInfos, error) {
 	}
 	f(doc)
 
-	// Verify
+	// Print results
 	if title == "" {
-		return nil, fmt.Errorf("failed to find title in HTML")
+		logrus.Warnf("Failed to find title in HTML")
 	}
+	var iconURL string
 	if icon == nil {
-		return nil, fmt.Errorf("failed to find icon in HTML")
+		logrus.Warnf("Failed to find icon in HTML")
+	} else {
+		iconURL = icon.link
 	}
-
-	logrus.Infof("Found icon for website: %v", icon)
 
 	// Return
 	return &WebsiteInfos{
 		Title:   title,
-		IconURL: icon.link,
+		IconURL: iconURL,
 	}, nil
 
 }
