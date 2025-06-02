@@ -7,6 +7,8 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
+	"sync"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -157,6 +159,31 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "templates/index.html")
+}
+
+// rate limit: maxTokens requests per refillInterval
+func withRateLimit(handler http.HandlerFunc, maxTokens int, refillInterval time.Duration) http.HandlerFunc {
+	tokens := maxTokens
+	var mu sync.Mutex
+	ticker := time.NewTicker(refillInterval)
+	go func() {
+		for range ticker.C {
+			mu.Lock()
+			tokens = maxTokens
+			mu.Unlock()
+		}
+	}()
+	return func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		if tokens > 0 {
+			tokens--
+			mu.Unlock()
+			handler(w, r)
+		} else {
+			mu.Unlock()
+			http.Error(w, "Too many requests, please try again later.", http.StatusTooManyRequests)
+		}
+	}
 }
 
 // get a website title and icon

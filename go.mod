@@ -7,4 +7,7 @@ require (
 	golang.org/x/net v0.31.0
 )
 
-require golang.org/x/sys v0.27.0 // indirect
+require (
+	github.com/caarlos0/env/v11 v11.3.1 // indirect
+	golang.org/x/sys v0.27.0 // indirect
+)
